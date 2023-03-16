@@ -1,9 +1,13 @@
 {
     "sortOrder": [
         {
+            "columnIndex": 3,
+            "ascending": false
+        },
+        {
             "columnIndex": 2,
             "ascending": true
         }
     ],
-    "path": "C:/Users/alvag/Documents/Codeclan/dirty_data_codeclan_project_deblaing/Task_04/raw_data"
+    "path": "C:/Users/alvag/Documents/Codeclan/dirty_data_codeclan_project_deblaing/Task_04/data_cleaning_scripts"
 }
