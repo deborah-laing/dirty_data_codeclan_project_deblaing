@@ -22,32 +22,38 @@ raw_candy_2017 <- read_excel(
 
 candy_clean_2015 <- clean_names(raw_candy_2015) %>% 
   mutate(Year = as.numeric(str_sub(timestamp, start = 1, end = 4)),
-         .after = timestamp)%>% 
+         .before = timestamp,
+         Dataset = Year) %>% 
+  rowid_to_column("ID") %>%
   rename("Age" = "how_old_are_you", 
-         "Trick_or_Treat" = "are_you_going_actually_going_trick_or_treating_yourself",) %>% 
+         "Trick_or_Treat" = "are_you_going_actually_going_trick_or_treating_yourself") %>% 
+  unite("Combined_ID", c("Dataset", "ID"), sep = "_") %>% 
   pivot_longer(cols = c("butterfinger":"york_peppermint_patties"),
                names_to = "Candy_Type",
                values_to = "Rating") %>% 
   add_column(Country = NA,
              State_or_Province = NA,
              Gender = NA) %>% 
-  select("Year", "Age", "Trick_or_Treat", "Candy_Type", "Rating", "Country", "State_or_Province", 
+  select("Combined_ID", "Year", "Age", "Trick_or_Treat", "Candy_Type", "Rating", "Country", "State_or_Province", 
          "Gender"); 
 
 # 2016 DATASET - Initial sort and tidy
 
 candy_clean_2016 <- clean_names(raw_candy_2016) %>% 
   mutate(Year = as.numeric(str_sub(timestamp, start = 1, end = 4)),
-         .after = timestamp) %>% 
+         .before = timestamp,
+         Dataset = Year) %>% 
+  rowid_to_column("ID") %>%
   rename("Age" = "how_old_are_you",
          "Trick_or_Treat" = "are_you_going_actually_going_trick_or_treating_yourself",
          "Gender" = "your_gender",
          "Country" = "which_country_do_you_live_in",
          "State_or_Province" = "which_state_province_county_do_you_live_in") %>% 
- pivot_longer(cols = c("x100_grand_bar":"york_peppermint_patties"),
+  unite("Combined_ID", c("Dataset", "ID"), sep = "_") %>% 
+  pivot_longer(cols = c("x100_grand_bar":"york_peppermint_patties"),
                names_to = "Candy_Type",
                values_to = "Rating") %>%
-  select("Year", "Age", "Trick_or_Treat", "Candy_Type", "Rating", "Country", "State_or_Province",
+  select("Combined_ID", "Year", "Age", "Trick_or_Treat", "Candy_Type", "Rating", "Country", "State_or_Province", 
          "Gender");
 
 # 2017 DATASET - Initial sort and tidy
@@ -58,11 +64,15 @@ candy_clean_2017 <- clean_names(raw_candy_2017) %>%
          "Trick_or_Treat" = "q1_going_out", 
          "Country" = "q4_country", 
          "State_or_Province" = "q5_state_province_county_etc") %>%
+  rowid_to_column("ID") %>%
+  add_column(Year = "2017") %>%
+  mutate(Dataset = Year) %>% 
+  unite("Combined_ID", c("Dataset", "ID"), sep = "_") %>% 
   pivot_longer(cols = ("q6_100_grand_bar":"q6_york_peppermint_patties"),
                names_to = "Candy_Type",
                values_to = "Rating") %>% 
-  add_column(Year = "2017") %>%
-  select("Year", "Age", "Trick_or_Treat", "Candy_Type", "Rating", "Country", "State_or_Province",
+  
+  select("Combined_ID", "Year", "Age", "Trick_or_Treat", "Candy_Type", "Rating", "Country", "State_or_Province", 
          "Gender");
 
 # Use 'Bind' to combine the three datasets
@@ -72,7 +82,7 @@ merged_candy_data_171819 <-rbind(candy_clean_2015, candy_clean_2016, candy_clean
 # Tidy the merged dataset
 
   #Country data - changing to title case
-  tidied_candy_data_171819 <- merged_candy_data_171819  %>% 
+  tidied_candy_data <- merged_candy_data_171819  %>% 
   mutate(Country_clean = str_to_title(Country),
          .after = Country) %>% 
   
@@ -215,17 +225,14 @@ merged_candy_data_171819 <-rbind(candy_clean_2015, candy_clean_2016, candy_clean
                      (Country_clean == "Murica") & (State_or_Province == "Gawja") ~ "Unknown Country",
                      TRUE ~ Country_clean
            )
-  )
+  ) %>% 
   
   
   #cleaning data for candy type 
   
-  tidied_candy_data_171819 <- tidied_candy_data_171819 %>% 
     mutate(Candy_clean = str_replace_all(Candy_Type,"^q6_","")) %>% 
-    mutate(Candy_clean = str_replace_all(Candy_clean, "_", " "))
-  
-  tidied_candy_data_171819 <- tidied_candy_data_171819  %>% 
-  mutate(Candy_clean =
+    mutate(Candy_clean = str_replace_all(Candy_clean, "_", " ")) %>% 
+    mutate(Candy_clean =
                        # Invalid responses
                        case_when(Candy_clean %in% c(
                          "abstained from m ming",
@@ -269,10 +276,9 @@ merged_candy_data_171819 <-rbind(candy_clean_2015, candy_clean_2016, candy_clean
                          Candy_clean == "tolberone something or other" ~ "toblerone",
                          Candy_clean == "x100 grand bar" ~ "100 grand bar",
                          TRUE ~ Candy_clean)
-              )
+              ) %>% 
   
   #cleaning data for age
-  tidied_candy_data_171819 <- tidied_candy_data_171819 %>% 
     mutate(Age_clean = str_replace_all(Age, "\\.0$","")) %>% 
     
     #cleaning data for age unknown
@@ -382,25 +388,15 @@ merged_candy_data_171819 <-rbind(candy_clean_2015, candy_clean_2016, candy_clean
     mutate(Age_clean = str_replace_all(Age_clean, "[:punct:]$","")) %>% 
     mutate(Age_clean = str_replace_all(Age_clean, "^$","")) %>% 
     mutate(Age_clean = str_replace_all(Age_clean, "[s-z]$","")) %>% 
-    
     mutate(Age_clean = as.numeric(Age_clean))
   
+final_candy_data <- tidied_candy_data %>% 
+  select(-"Age", -"Candy_Type", -"Country") %>% 
+  rename("Age" = "Age_clean", "Candy_Type" = "Candy_clean", "Country" = "Country_clean")
   
-# review list of distinct candy types in tidied dataset
-distinct_candy_clean <- tidied_candy_data_171819 %>% 
-  distinct(Candy_clean)
-
-# review list of distinct country names in tidied dataset
-distinct_country_clean <- tidied_candy_data_171819 %>% 
-  distinct(Country_clean)
-
-# review list of distinct ages in tidied dataset
-distinct_age_clean <- tidied_candy_data_171819 %>% 
-  distinct(Age_clean)
-
 #saving the data into the clean_data folder
 
-write.csv(tidied_candy_data_171819, here("clean_data/tidied_candy_data_171819.csv"))
+write.csv(final_candy_data, here("clean_data/final_candy_data.csv"))
 
 
 
