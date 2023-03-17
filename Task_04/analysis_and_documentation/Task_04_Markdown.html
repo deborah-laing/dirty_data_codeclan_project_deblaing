@@ -10,9 +10,9 @@
 
 
 
-<meta name="date" content="2023-03-16" />
+<meta name="date" content="2023-03-17" />
 
-<title>Dirty Data Project - Group 1: Linzi, Lorna, Debbie, Gosia</title>
+<title>Dirty Data Project: Linzi, Lorna, Debbie, Gosia</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -349,9 +349,9 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">Dirty Data Project - Group 1: Linzi, Lorna,
-Debbie, Gosia</h1>
-<h4 class="date">2023-03-16</h4>
+<h1 class="title toc-ignore">Dirty Data Project: Linzi, Lorna, Debbie,
+Gosia</h1>
+<h4 class="date">2023-03-17</h4>
 
 </div>
 
@@ -386,6 +386,7 @@ library(readxl)
 library(here)
 library(skimr)
 library(janitor)
+library(ggplot2)
 
 raw_candy_2015 &lt;- read_excel(
   here(&quot;raw_data/boing-boing-candy-2015.xlsx&quot;)
@@ -974,8 +975,7 @@ canada_provinces &lt;- final_candy_data %&gt;%
     y = &quot;Number of ratings&quot;,
     title = &quot;Total number of Candy Ratings split by Canadian Province&quot;,
     subtitle = &quot;data from 2015-2017 incl &#39;Joy&#39;, &#39;Meh&#39; and &#39;Despair&#39; ratings&quot;) +
-  coord_flip() </code></pre>
-<p>```</p>
+  coord_flip()</code></pre>
 </div>
 
 

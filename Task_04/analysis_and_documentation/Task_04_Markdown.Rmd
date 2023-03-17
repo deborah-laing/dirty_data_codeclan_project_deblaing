@@ -1,7 +1,7 @@
 ---
-title: "Dirty Data Project - Group 1: Linzi, Lorna, Debbie, Gosia"
+title: "Dirty Data Project: Linzi, Lorna, Debbie, Gosia"
 output: html_document
-date: "2023-03-16"
+date: "2023-03-17"
 ---
 
 # **1. Project Brief**
@@ -28,6 +28,7 @@ library(readxl)
 library(here)
 library(skimr)
 library(janitor)
+library(ggplot2)
 
 raw_candy_2015 <- read_excel(
   here("raw_data/boing-boing-candy-2015.xlsx")
@@ -650,7 +651,6 @@ number_of_candy_ratings_per_Province <- canada_provinces %>%
   group_by(State_or_Province) 
 ```
    
-   
 ```{r eval=FALSE}
 ggplot(
   number_of_candy_ratings_per_Province, 
@@ -661,9 +661,9 @@ ggplot(
     y = "Number of ratings",
     title = "Total number of Candy Ratings split by Canadian Province",
     subtitle = "data from 2015-2017 incl 'Joy', 'Meh' and 'Despair' ratings") +
-  coord_flip() 
-``` 
+  coord_flip()
 ```
+
 
 
 
